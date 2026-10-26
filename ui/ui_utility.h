@@ -17,6 +17,8 @@
 class QPixmap;
 class QImage;
 class QWheelEvent;
+class QPainter;
+class QBrush;
 
 template <typename Object>
 class object_ptr;
@@ -48,6 +50,9 @@ inline not_null<std::decay_t<Value>*> AttachAsChild(
 		Value &&value) {
 	return WrapAsQObject(parent, std::forward<Value>(value))->value();
 }
+
+[[nodiscard]] bool UseTranslucentWindows();
+void FillSurfaceRect(QPainter &p, QRect rect, const QBrush &brush);
 
 [[nodiscard]] bool AppInFocus();
 [[nodiscard]] bool InFocusChain(not_null<const QWidget*> widget);

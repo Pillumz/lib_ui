@@ -10,6 +10,7 @@
 #include "ui/painter.h"
 #include "ui/widgets/popup_menu.h"
 #include "ui/integration.h"
+#include "ui/ui_utility.h"
 #include "styles/palette.h"
 #include "styles/style_widgets.h"
 
@@ -83,7 +84,7 @@ MaskedInputField::MaskedInputField(
 	updatePalette();
 
 	if (_st.textBg->c.alphaF() >= 1. && !_st.borderRadius) {
-		setAttribute(Qt::WA_OpaquePaintEvent);
+		setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 	}
 
 	connect(this, SIGNAL(textChanged(QString)), this, SLOT(onTextChange(QString)));

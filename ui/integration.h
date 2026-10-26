@@ -54,6 +54,7 @@ public:
 	[[nodiscard]] virtual int touchCounterNow() = 0;
 
 	[[nodiscard]] virtual bool screenIsLocked();
+	[[nodiscard]] virtual bool translucentWindows();
 
 	[[nodiscard]] virtual std::shared_ptr<ClickHandler> createLinkHandler(
 		const EntityLinkData &data,

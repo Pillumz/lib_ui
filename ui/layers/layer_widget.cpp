@@ -101,7 +101,8 @@ void LayerStackWidget::BackgroundWidget::setCacheImages(
 	_specialLayerCacheBox = _specialLayerBox;
 	_layerCacheBox = _layerBox;
 	_repaintIssued = false;
-	setAttribute(Qt::WA_OpaquePaintEvent, !_bodyCache.isNull());
+	setAttribute(Qt::WA_OpaquePaintEvent,
+		!_bodyCache.isNull() && !Ui::UseTranslucentWindows());
 }
 
 void LayerStackWidget::BackgroundWidget::removeBodyCache() {
@@ -118,7 +119,8 @@ bool LayerStackWidget::BackgroundWidget::hasBodyCache() const {
 void LayerStackWidget::BackgroundWidget::refreshBodyCache(
 		QPixmap &&bodyCache) {
 	_bodyCache = std::move(bodyCache);
-	setAttribute(Qt::WA_OpaquePaintEvent, !_bodyCache.isNull());
+	setAttribute(Qt::WA_OpaquePaintEvent,
+		!_bodyCache.isNull() && !Ui::UseTranslucentWindows());
 }
 
 void LayerStackWidget::BackgroundWidget::startAnimation(
@@ -238,7 +240,11 @@ void LayerStackWidget::BackgroundWidget::paintEvent(QPaintEvent *e) {
 	});
 
 	if (!_bodyCache.isNull()) {
+		if (Ui::UseTranslucentWindows()) {
+			p.setCompositionMode(QPainter::CompositionMode_Source);
+		}
 		p.drawPixmap(0, 0, _bodyCache);
+		p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	}
 
 	auto specialLayerBox = _specialLayerCache.isNull() ? _specialLayerBox : _specialLayerCacheBox;
@@ -335,7 +341,30 @@ void LayerStackWidget::BackgroundWidget::paintEvent(QPaintEvent *e) {
 		auto shownWidth = mainMenuRight + st::boxRoundShadow.extend.right();
 		auto sourceWidth = shownWidth * style::DevicePixelRatio();
 		auto sourceRect = style::rtlrect(_mainMenuCache.width() - sourceWidth, 0, sourceWidth, _mainMenuCache.height(), _mainMenuCache.width());
-		p.drawPixmapLeft(0, 0, shownWidth, height(), width(), _mainMenuCache, sourceRect);
+		const auto draw = [&] {
+			p.drawPixmapLeft(
+				0,
+				0,
+				shownWidth,
+				height(),
+				width(),
+				_mainMenuCache,
+				sourceRect);
+		};
+		if (Ui::UseTranslucentWindows()) {
+			const auto interior = myrtlrect(0, 0, mainMenuRight, height());
+			p.save();
+			p.setClipRect(interior, Qt::IntersectClip);
+			p.setCompositionMode(QPainter::CompositionMode_Source);
+			draw();
+			p.restore();
+			p.save();
+			p.setClipRegion(QRegion(rect()) - interior, Qt::IntersectClip);
+			draw();
+			p.restore();
+		} else {
+			draw();
+		}
 	}
 	if (!_repaintIssued && !_a_shown.animating()) {
 		_repaintIssued = true;
@@ -372,7 +401,7 @@ void LayerWidget::setInnerFocus() {
 }
 
 bool LayerWidget::overlaps(const QRect &globalRect) {
-	if (isHidden()) {
+	if (isHidden() || Ui::UseTranslucentWindows()) {
 		return false;
 	}
 	auto testRect = QRect(mapFromGlobal(globalRect.topLeft()), globalRect.size());
@@ -573,7 +602,8 @@ void LayerStackWidget::setCacheImages() {
 		showChildren();
 		mainMenuCache = Ui::Shadow::grab(_mainMenu, st::boxRoundShadow, RectPart::Right);
 	}
-	setAttribute(Qt::WA_OpaquePaintEvent, !bodyCache.isNull());
+	setAttribute(Qt::WA_OpaquePaintEvent,
+		!bodyCache.isNull() && !Ui::UseTranslucentWindows());
 	updateLayerBoxes();
 	_background->setCacheImages(std::move(bodyCache), std::move(mainMenuCache), std::move(specialLayerCache), std::move(layerCache));
 }

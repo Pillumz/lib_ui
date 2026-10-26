@@ -16,6 +16,7 @@
 #include "ui/rect.h"
 #include "ui/qt_object_factory.h"
 #include "ui/round_rect.h"
+#include "ui/ui_utility.h"
 
 #include <QtGui/QtEvents>
 
@@ -991,7 +992,10 @@ void SettingsButton::paintEvent(QPaintEvent *e) {
 }
 
 void SettingsButton::paintBg(Painter &p, const QRect &rect, bool over) const {
-	p.fillRect(rect, over ? _st.textBgOver : _st.textBg);
+	const auto color = over ? _st.textBgOver : _st.textBg;
+	if (color->c.alpha()) {
+		Ui::FillSurfaceRect(p, rect, color);
+	}
 }
 
 void SettingsButton::paintText(Painter &p, bool over, int outerw) const {

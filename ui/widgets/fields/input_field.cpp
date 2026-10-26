@@ -1926,7 +1926,7 @@ InputField::InputField(
 	}
 
 	if (_st.textBg->c.alphaF() >= 1. && !_st.borderRadius) {
-		setAttribute(Qt::WA_OpaquePaintEvent);
+		setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 	}
 
 	_inner->setFont(_st.style.font->f);
@@ -2903,7 +2903,7 @@ void InputField::paintFlatSurrounding(
 		float64 errorDegree,
 		float64 focusedDegree) {
 	if (_st.textBg->c.alphaF() > 0.) {
-		p.fillRect(clip, _st.textBg);
+		Ui::FillSurfaceRect(p, clip, _st.textBg);
 	}
 	if (_st.border) {
 		p.fillRect(0, height() - _st.border, width(), _st.border, _st.borderFg);

@@ -8,6 +8,7 @@
 
 #include "ui/effects/ripple_animation.h"
 #include "ui/painter.h"
+#include "ui/ui_utility.h"
 
 #include <QtGui/QtEvents>
 
@@ -99,7 +100,8 @@ void Action::paintBackground(QPainter &p, bool selected) {
 	if (selected && _st.itemBgOver->c.alpha() < 255) {
 		p.fillRect(0, 0, width(), _height, _st.itemBg);
 	}
-	p.fillRect(
+	Ui::FillSurfaceRect(
+		p,
 		QRect(0, 0, width(), _height),
 		selected ? _st.itemBgOver : _st.itemBg);
 }

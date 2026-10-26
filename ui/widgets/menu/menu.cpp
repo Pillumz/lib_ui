@@ -10,6 +10,7 @@
 #include "ui/widgets/menu/menu_item_base.h"
 #include "ui/widgets/menu/menu_separator.h"
 #include "ui/widgets/scroll_area.h"
+#include "ui/ui_utility.h"
 #include "styles/style_widgets.h"
 
 #include <QtGui/QtEvents>
@@ -49,12 +50,13 @@ void Menu::init() {
 	setMouseTracking(true);
 
 	if (_st.itemBg->c.alpha() == 255) {
-		setAttribute(Qt::WA_OpaquePaintEvent);
+		setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 	}
 
 	paintRequest(
 	) | rpl::on_next([=](const QRect &clip) {
-		QPainter(this).fillRect(clip, _st.itemBg);
+		auto p = QPainter(this);
+		Ui::FillSurfaceRect(p, clip, _st.itemBg);
 	}, lifetime());
 
 	positionValue(

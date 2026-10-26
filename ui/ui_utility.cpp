@@ -11,6 +11,7 @@
 #include "ui/style/style_core.h"
 
 #include <QtWidgets/QApplication>
+#include <QtGui/QPainter>
 #include <QtGui/QWindow>
 #include <QtGui/QtEvents>
 #include <QWheelEvent>
@@ -81,6 +82,20 @@ void SendPendingEventsRecursive(QWidget *target, bool parentHiddenFlag) {
 }
 
 } // namespace
+
+bool UseTranslucentWindows() {
+	return Integration::Exists()
+		&& Integration::Instance().translucentWindows();
+}
+
+void FillSurfaceRect(QPainter &p, QRect rect, const QBrush &brush) {
+	const auto mode = p.compositionMode();
+	if (UseTranslucentWindows()) {
+		p.setCompositionMode(QPainter::CompositionMode_Source);
+	}
+	p.fillRect(rect, brush);
+	p.setCompositionMode(mode);
+}
 
 bool AppInFocus() {
 	return QApplication::focusWidget() != nullptr;

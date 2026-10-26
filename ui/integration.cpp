@@ -44,6 +44,10 @@ void Integration::textActionsUpdated() {
 void Integration::activationFromTopPanel() {
 }
 
+bool Integration::translucentWindows() {
+	return false;
+}
+
 bool Integration::screenIsLocked() {
 	return false;
 }

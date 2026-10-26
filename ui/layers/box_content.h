@@ -17,6 +17,7 @@
 #include "ui/effects/animation_value.h"
 #include "ui/text/text_variant.h"
 #include "ui/rp_widget.h"
+#include "ui/ui_utility.h"
 
 enum class RectPart;
 using RectParts = base::flags<RectPart>;
@@ -116,7 +117,7 @@ public:
 class BoxContent : public RpWidget {
 public:
 	BoxContent() {
-		setAttribute(Qt::WA_OpaquePaintEvent);
+		setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 	}
 
 	QAccessible::Role accessibilityRole() override {
@@ -225,7 +226,8 @@ public:
 	void setNoContentMargin(bool noContentMargin) {
 		if (_noContentMargin != noContentMargin) {
 			_noContentMargin = noContentMargin;
-			setAttribute(Qt::WA_OpaquePaintEvent, !_noContentMargin);
+			setAttribute(Qt::WA_OpaquePaintEvent,
+				!_noContentMargin && !Ui::UseTranslucentWindows());
 		}
 		getDelegate()->setNoContentMargin(noContentMargin);
 	}

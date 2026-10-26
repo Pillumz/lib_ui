@@ -8,6 +8,7 @@
 
 #include "ui/effects/ripple_animation.h"
 #include "ui/painter.h"
+#include "ui/ui_utility.h"
 #include "styles/style_widgets.h"
 
 #include <QtGui/QtEvents>
@@ -38,7 +39,7 @@ SideBarButton::SideBarButton(
 		title,
 		kMarkupTextOptions,
 		_context);
-	setAttribute(Qt::WA_OpaquePaintEvent);
+	setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 
 	style::PaletteChanged(
 	) | rpl::on_next([this] {
@@ -167,7 +168,7 @@ void SideBarButton::paintEvent(QPaintEvent *e) {
 	const auto clip = e->rect();
 
 	const auto &bg = _active ? _st.textBgActive : _st.textBg;
-	p.fillRect(clip, bg);
+	Ui::FillSurfaceRect(p, clip, bg);
 
 	RippleButton::paintRipple(p, 0, 0);
 

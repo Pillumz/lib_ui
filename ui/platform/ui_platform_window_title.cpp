@@ -431,7 +431,7 @@ DefaultTitleWidget::DefaultTitleWidget(not_null<RpWidget*> parent)
 : RpWidget(parent)
 , _controls(this, st::defaultWindowTitle)
 , _shadow(this, st::titleShadow) {
-	setAttribute(Qt::WA_OpaquePaintEvent);
+	setAttribute(Qt::WA_OpaquePaintEvent, !Ui::UseTranslucentWindows());
 }
 
 not_null<const style::WindowTitle*> DefaultTitleWidget::st() const {
@@ -461,7 +461,9 @@ void DefaultTitleWidget::setResizeEnabled(bool enabled) {
 
 void DefaultTitleWidget::paintEvent(QPaintEvent *e) {
 	const auto active = window()->isActiveWindow();
-	QPainter(this).fillRect(
+	auto p = QPainter(this);
+	Ui::FillSurfaceRect(
+		p,
 		e->rect(),
 		active ? _controls.st()->bgActive : _controls.st()->bg);
 }
